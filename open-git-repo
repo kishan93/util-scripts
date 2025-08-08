@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+repo_type=$(printf "projects\npersonal\napps" | fzf)
+
+if [ "$repo_type" == "" ]; then
+    exit 0
+fi
+
+if [ "$repo_type" != "apps" ]; then
+    vendor_dir=$(find ~/$repo_type -maxdepth 1 -mindepth 1 -type d -exec basename {} \; | fzf)
+    repo_type="$repo_type/$vendor_dir"
+fi
+
+printf "1) Create New repo\n2) Clone existing repo\nSelect Option:"
+read repo_exist
+
+cdir=$(pwd)
+cd ~/$repo_type
+
+if [ "$repo_exist" == "2" ]; then
+    echo "Enter repo path:"
+    read repo_path
+    if [ "$repo_path" == "" ]; then
+        cd $cdir
+        exit 0
+    fi
+    git clone git@github.com:$repo_path
+else
+    echo "Enter repo name:"
+    read repo_path
+    mkdir $repo_path
+    cd $repo_path
+    git init
+fi
+
+cd $cdir
+
+tmux-sessionizer ~/$repo_type/$repo_path
+

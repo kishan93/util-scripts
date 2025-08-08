@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+selected=$(tmux list-sessions | fzf | cut -d: -f1)
+
+if [[ -z $selected ]]; then
+    exit 0
+fi
+
+tmux_running=$(pgrep tmux)
+
+if [[ $TMUX ]] && [[ $tmux_running ]]; then
+    tmux switch-client -t $selected
+    exit 0
+fi
+
+tmux attach -t $selected
